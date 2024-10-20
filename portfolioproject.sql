@@ -172,3 +172,25 @@ where  continenT IS NOT NULL
 
 	SELECT *,(ROLLINGVACINATION/POPULATION)*100
 	FROM #PERCENTAGEPOPULATIONVACCINATED
+
+
+
+	CREATE VIEW PERCENTAGEPOPULATIONVACCINATED AS
+	select c1.continent,c1.location,c1.DATE, c1.population,c2.new_vaccinations,
+	sum(CONVERT(INT,c2.new_vaccinations)) over (partition by c1.location ORDER BY C1.LOCATION,  C1.DATE) AS ROLLINGVACINATION
+from portfolioproject.dbo.covid1 c1
+LEFT OUTER  join portfolioproject.dbo.covid2 c2
+on c1.iso_code= c2.new_tests
+where  continenT IS NOT NULL 
+	--order by 1,2
+
+
+
+create view total_deaths as
+select sum(total_cases) as totalcases, sum(total_deaths) as totaldeaths, 
+sum(new_deaths/new_cases)*100 as newcasespercentage
+from portfolioproject.dbo.covid1
+where total_cases is not null and total_deaths is not null 
+and continent is not null and  new_cases <> 0 and new_deaths <> 0
+group by total_cases 
+--order by total_cases, 1,2
